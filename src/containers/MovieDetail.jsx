@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
-import { CastList, TrailerList} from '../components';
-import { CAST_MAX_NUM, TRAILER_MAX_NUM } from '../const';
+import { CastList, TrailerList, SimilarMoviesList} from "../components";
+import { CAST_MAX_NUM, TRAILER_MAX_NUM, SIMILAR_MAX_NUM } from "../const";
 import { Grid, Row, Col} from 'react-bootstrap/lib';
 import { MovieInfo, Poster } from '../components';
 import { connect } from 'react-redux';
-import { fetchMovieDetail, fetchCastList, fetchTrailerList} from '../actions';
+import { fetchMovieDetail, fetchCastList, fetchTrailerList,fetchSimilarMoviesList} from '../actions';
 
 class MovieDetail extends Component {
 
@@ -13,6 +13,7 @@ class MovieDetail extends Component {
     dispatch(fetchMovieDetail(this.props.params.id));
     dispatch(fetchCastList(this.props.params.id));
     dispatch(fetchTrailerList(this.props.params.id));
+    dispatch(fetchSimilarMoviesList(this.props.params.id));
   }
 
   componentWillReceiveProps(nextProps) {
@@ -21,6 +22,7 @@ class MovieDetail extends Component {
          dispatch(fetchMovieDetail(nextProps.params.id));
          dispatch(fetchCastList(nextProps.params.id));
          dispatch(fetchTrailerList(nextProps.params.id));
+         dispatch(fetchSimilarMoviesList(nextProps.params.id));
       }
   }
 
@@ -33,26 +35,32 @@ class MovieDetail extends Component {
   // }
 
   render() {
-    const {movie, casts, trailers, isFetcing_movie, isFetcing_casts, isFetcing_trailers} = this.props;
+    const {movie, casts, trailers, similarMovies, isFetcing_movie, isFetcing_casts, isFetcing_trailers, isFetching_similarMovies} = this.props;
 
-    if(isFetcing_movie || isFetcing_casts || isFetcing_trailers) {
-      return <p>loading...</p>
+    if (
+      isFetcing_movie ||
+      isFetcing_casts ||
+      isFetcing_trailers ||
+      isFetching_similarMovies
+    ) {
+      return <p>loading...</p>;
     }
     if(movie.hasOwnProperty('id')) {
-      return(
+      return (
         <Grid fluid={false}>
           <Row>
             <Col xs={12} sm={6} md={4}>
               <Poster id={movie.id} path={movie.poster_path} responsive />
             </Col>
             <Col xs={12} sm={6} md={8}>
-              <MovieInfo movie={movie}/>
-              <CastList data={casts.slice(0,CAST_MAX_NUM)} />
+              <MovieInfo movie={movie} />
+              <CastList data={casts.slice(0, CAST_MAX_NUM)} />
             </Col>
           </Row>
           <Row>
-            <TrailerList data={trailers.slice(0,TRAILER_MAX_NUM)} />
+            <TrailerList data={trailers.slice(0, TRAILER_MAX_NUM)} />
           </Row>
+         
         </Grid>
       );
     } else
@@ -62,12 +70,18 @@ class MovieDetail extends Component {
 }
 
 function mapStateToProps(state){
-  const {movieDetail, castList, trailerList} = state;
+  const { movieDetail, castList, trailerList, similarMoviesList } = state;
   const {isFetcing_movie, item: movie, error_movie} = movieDetail;
   const {isFetcing_casts, items: casts, error_casts} = castList;
   const {isFetcing_trailers, items: trailers, error_trailers} = trailerList;
+  const {isFetcing_similarMovies, items: similarMovies, error_similarMovies } = similarMoviesList;
 
-  return {isFetcing_movie, movie, error_movie, isFetcing_casts, casts, error_casts, isFetcing_trailers, trailers, error_trailers}
+  return {isFetcing_movie, movie, error_movie, isFetcing_casts, casts, error_casts, isFetcing_trailers, trailers, error_trailers, isFetcing_similarMovies,similarMovies,error_similarMovies}
 }
 
 export default connect(mapStateToProps)(MovieDetail);
+
+
+
+
+
